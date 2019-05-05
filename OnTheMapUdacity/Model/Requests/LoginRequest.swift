@@ -9,7 +9,9 @@
 import Foundation
 
 struct LoginRequest: Codable {
+    let udacity: LoginParameters
+}
+struct LoginParameters: Codable {
     let username: String
     let password: String
 }
-
