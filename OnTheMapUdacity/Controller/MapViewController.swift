@@ -2,7 +2,7 @@
 //  MapViewController.swift
 //  OnTheMapUdacity
 //
-//  Created by Darko Kulakov on 2019-05-04.
+//  Created by Elena Kulakova on 2019-05-04.
 //  Copyright © 2019 Elena Kulakova. All rights reserved.
 //
 
@@ -26,7 +26,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         self.mapView.removeAnnotations(allAnnotations)
         
         self.students = UdacityData.studentInformations?.compactMap({ student -> StudentAnnotationInfo? in
-            return StudentAnnotationInfo(title: student.firstName + " " + student.lastName,
+            return StudentAnnotationInfo(title: student.name,
                                       subtitle: student.mediaURL,
                                       coordinate: CLLocationCoordinate2DMake(student.latitude, student.longitude))
         })
@@ -60,7 +60,9 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             let mediaUrlPath = studentInformation.subtitle,
             let mediaUrl = URL(string: mediaUrlPath),
             UIApplication.shared.canOpenURL(mediaUrl) else {
-                self.showAlert(message: "This URL is not valid!")
+                DispatchQueue.main.async {
+                    self.showAlert(message: "This URL is not valid!")
+                }
                 return
         }
         

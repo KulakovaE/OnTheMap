@@ -23,12 +23,16 @@ class UdacityClient {
     
     enum Endpoints {
         static let udacityAPIBase = "https://onthemap-api.udacity.com/v1/session"
+        static let parseAPIBase = "https:parse.udacity.com/parse/classes/StudentLocation"
  
         case login
         case logout
         case getStudentLocations(limit: Int)
         case getUserData(userId: String)
         case getStudentLocation(uniqueKey: String)
+        case postStudentLocation
+        case updateStudentLocation(objectId: String)
+        
         
         var stringValue: String {
             switch self {
@@ -42,6 +46,10 @@ class UdacityClient {
                 return "https://onthemap-api.udacity.com/v1/users/\(userId)"
             case .getStudentLocation(let uniqueKey):
                 return "https://parse.udacity.com/parse/classes/StudentLocation?where=%7B%22uniqueKey%22%3A%22\(uniqueKey)%22%7D"
+            case .postStudentLocation:
+                return Endpoints.parseAPIBase
+            case .updateStudentLocation(let objectId):
+                return Endpoints.parseAPIBase + "/\(objectId)"
             }
         }
         
@@ -95,7 +103,6 @@ class UdacityClient {
         return task
     }
     
-    //MARK: TaskForPostRequest
     class func taskForPOSTRequest<RequestType: Encodable, ResponseType: Decodable>(url: URL, responseType: ResponseType.Type, body: RequestType, completion: @escaping (ResponseType?, Error?) -> Void){
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -113,8 +120,14 @@ class UdacityClient {
                 return
             }
             
-            let newData = data.subdata(in: (5..<data.count))
-            //print(String(data: newData, encoding: .utf8)!)
+            var newData: Data
+            if request.url == Endpoints.postStudentLocation.url {
+                newData = data
+            } else {
+                newData = data.subdata(in: (5..<data.count))
+            }
+            
+            print(String(data: newData, encoding: .utf8)!)
             let decoder = JSONDecoder()
             
             if let responseObject = try? decoder.decode(ResponseType.self, from: newData) {
@@ -123,6 +136,47 @@ class UdacityClient {
                     return
                 }
             } else if let responseObject = try? decoder.decode(ErrorResponse.self, from: newData) {
+                DispatchQueue.main.async {
+                    completion(nil, UdacityError.init(responseObject.error))
+                    return
+                }
+            } else {
+                DispatchQueue.main.async {
+                    completion(nil, UdacityError.init("Something went wrong."))
+                    return
+                }
+            }
+        }
+        task.resume()
+    }
+    
+    class func taskForPUTRequest<RequestType: Encodable, ResponseType: Decodable>(url: URL, responseType: ResponseType.Type, body: RequestType, completion: @escaping (ResponseType?, Error?) -> Void){
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.httpBody = try! JSONEncoder().encode(body)
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        request.addValue(appId, forHTTPHeaderField: "X-Parse-Application-Id")
+        request.addValue(apiKey, forHTTPHeaderField: "X-Parse-REST-API-Key")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let data = data else {
+                DispatchQueue.main.async {
+                    completion(nil, error)
+                }
+                return
+            }
+            
+            
+            print(String(data: data, encoding: .utf8)!)
+            let decoder = JSONDecoder()
+            
+            if let responseObject = try? decoder.decode(ResponseType.self, from: data) {
+                DispatchQueue.main.async {
+                    completion(responseObject, nil)
+                    return
+                }
+            } else if let responseObject = try? decoder.decode(ErrorResponse.self, from: data) {
                 DispatchQueue.main.async {
                     completion(nil, UdacityError.init(responseObject.error))
                     return
@@ -199,19 +253,35 @@ class UdacityClient {
             if let response = response {
                 if let studentLocation = response.results.first {
                     Auth.objectId = studentLocation.objectId
-                    UdacityData.myStudentInformation = studentLocation
                 }
                 completion(true, nil)
                 return
             }
             
             completion(false, error)
-            return
         }
     }
     
+    class func postStudentLocation(studentInformation: StudentInformation, completion: @escaping (Bool, Error?)-> Void){
+        taskForPOSTRequest(url: Endpoints.postStudentLocation.url, responseType: PostStudentLocationResponse.self, body: studentInformation) { (response, error) in
+            if let response = response {
+                Auth.objectId = response.objectId
+                completion(true, nil)
+                return
+            }
+            
+            completion(false, error)
+        }
+    }
     
-    
-    
-    
+    class func updateStudentLocation(studentInformation: StudentInformation, completion: @escaping (Bool, Error?)-> Void) {
+        taskForPUTRequest(url: Endpoints.updateStudentLocation(objectId: Auth.objectId).url, responseType: UpdateStudentLocationResponse.self, body: studentInformation) { (response, error) in
+            if let response = response, response.updatedAt != "" {
+                completion(true, nil)
+                return
+            }
+            
+            completion(false, error)
+        }
+    }
 }

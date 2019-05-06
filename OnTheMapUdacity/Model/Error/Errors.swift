@@ -2,7 +2,7 @@
 //  Errors.swift
 //  OnTheMapUdacity
 //
-//  Created by Darko Kulakov on 2019-05-04.
+//  Created by Elena Kulakova on 2019-05-04.
 //  Copyright © 2019 Elena Kulakova. All rights reserved.
 //
 

@@ -17,8 +17,12 @@ struct StudentInformation: Codable {
     let latitude: Double
     let mapString: String
     let lastName: String
-    let createdAt: String
-    let updatedAt: String
+    
+    var name: String {
+        get {
+            return firstName + " " + lastName
+        }
+    }
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -30,7 +34,16 @@ struct StudentInformation: Codable {
         self.latitude = try container.decodeIfPresent(Double.self, forKey: .latitude) ?? 0
         self.mapString = try container.decodeIfPresent(String.self, forKey: .mapString) ?? ""
         self.lastName = try container.decodeIfPresent(String.self, forKey: .lastName) ?? ""
-        self.createdAt = try container.decodeIfPresent(String.self, forKey: .createdAt) ?? ""
-        self.updatedAt = try container.decodeIfPresent(String.self, forKey: .updatedAt) ?? ""
+    }
+    
+    init(uniqueKey: String, firstName: String, lastName: String, mapString: String, mediaURL: String, latitude: Double, longitude: Double, objectId: String ) {
+        self.uniqueKey = uniqueKey
+        self.firstName = firstName
+        self.lastName = lastName
+        self.mapString = mapString
+        self.mediaURL = mediaURL
+        self.latitude = latitude
+        self.longitude = longitude
+        self.objectId = objectId
     }
 }

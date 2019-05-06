@@ -2,7 +2,7 @@
 //  TableViewController.swift
 //  OnTheMapUdacity
 //
-//  Created by Darko Kulakov on 2019-05-05.
+//  Created by Elena Kulakova on 2019-05-05.
 //  Copyright © 2019 Elena Kulakova. All rights reserved.
 //
 
@@ -20,7 +20,7 @@ class TableViewController: UITableViewController {
     
     func loadStudentLocationData(){
         if let studentLocations = UdacityData.studentInformations{
-               self.studentLocations = studentLocations
+            self.studentLocations = studentLocations
             self.tableView.reloadData()
         }
         
@@ -40,7 +40,7 @@ class TableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "OnTheMapTableViewCell", for: indexPath)
         if let cell = cell as? OnTheMapTableViewCell {
             let studentLocation = self.studentLocations[indexPath.row]
-            cell.studentName.text = studentLocation.firstName + " " + studentLocation.lastName
+            cell.studentName.text = studentLocation.name
             cell.studentLink.text = studentLocation.mediaURL
         }
         return cell
@@ -52,7 +52,9 @@ class TableViewController: UITableViewController {
         let studentLocation = self.studentLocations[indexPath.row]
         guard let mediaUrl = URL(string: studentLocation.mediaURL),
             UIApplication.shared.canOpenURL(mediaUrl) else {
-                self.showAlert(message: "This URL is not valid!")
+                DispatchQueue.main.async {
+                    self.showAlert(message: "This URL is not valid!")
+                }
                 return
         }
         

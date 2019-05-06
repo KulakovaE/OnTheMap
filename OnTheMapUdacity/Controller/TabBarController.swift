@@ -2,7 +2,7 @@
 //  TabBarController.swift
 //  OnTheMapUdacity
 //
-//  Created by Darko Kulakov on 2019-05-04.
+//  Created by Elena Kulakova on 2019-05-04.
 //  Copyright © 2019 Elena Kulakova. All rights reserved.
 //
 
@@ -56,7 +56,17 @@ class TabBarController: UITabBarController {
         }
     }
     
-    @objc func addLocation(){
+    @objc func addLocation() {
+        
+        if UdacityClient.Auth.objectId != "" {
+            showOverwriteAlert()
+            return
+        }
+        
+        goToAddLocation()
+    }
+    
+    func goToAddLocation(){
         if let vc = storyboard?.instantiateViewController(withIdentifier: "AddLocationViewController") as? AddLocationViewController {
             navigationController?.pushViewController(vc, animated: true)
         }
@@ -68,7 +78,9 @@ class TabBarController: UITabBarController {
                  self.navigationController?.popToRootViewController(animated: true)
             }
         } else {
-            showAlert(message: "Failed to Logout! Try again.")
+            DispatchQueue.main.async {
+                self.showAlert(message: "Failed to Logout! Try again.")
+            }
         }
     }
     
@@ -76,6 +88,22 @@ class TabBarController: UITabBarController {
         let alertVC = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
         alertVC.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         present(alertVC, animated: true, completion: nil)
+    }
+    
+    func showOverwriteAlert() {
+        let message = "You have already posted a student location. Would you like to OVERWRITE your current location ?"
+        let alertVC = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let overwriteAction = UIAlertAction(title: "Overwrite", style: .default, handler: overwriteHandler)
+        
+        alertVC.addAction(overwriteAction)
+        alertVC.addAction(cancelAction)
+        
+        present(alertVC, animated: true, completion: nil)
+    }
+    
+    func overwriteHandler(alert: UIAlertAction){
+        goToAddLocation()
     }
     
 }

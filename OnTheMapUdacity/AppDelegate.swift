@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  OnTheMapUdacity
 //
-//  Created by Darko Kulakov on 2019-05-03.
+//  Created by Elena Kulakova on 2019-05-03.
 //  Copyright © 2019 Elena Kulakova. All rights reserved.
 //
 
@@ -17,8 +17,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         return true
     }
-
-
-
 }
 

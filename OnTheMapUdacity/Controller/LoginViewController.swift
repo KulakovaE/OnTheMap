@@ -24,6 +24,12 @@ class LoginViewController: UIViewController {
         
         emailTextField.text = "egeorgievska89@gmail.com"
         passwordTextField.text = "kulakova"
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(true)
+        navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
     @IBAction func signupTapped(_ sender: UIButton) {
@@ -103,7 +109,9 @@ class LoginViewController: UIViewController {
             if let error = error {
                 errorMessage = error.localizedDescription
             }
-            self.showAlert(message: errorMessage)
+            DispatchQueue.main.async {
+                self.showAlert(message: errorMessage)
+            }
         }
     }
     
