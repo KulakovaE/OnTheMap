@@ -21,7 +21,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         loadMapData()
     }
     
-    func loadMapData(){
+    func loadMapData() {
         let allAnnotations = self.mapView.annotations
         self.mapView.removeAnnotations(allAnnotations)
         

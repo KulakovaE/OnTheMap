@@ -96,7 +96,6 @@ class AddLocationViewController: UIViewController, UITextFieldDelegate {
                     return
                 }
             }
-            
             completionHandler(kCLLocationCoordinate2DInvalid, error as NSError?)
         }
     }
@@ -106,8 +105,6 @@ class AddLocationViewController: UIViewController, UITextFieldDelegate {
         alertVC.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         present(alertVC, animated: true, completion: nil)
     }
-    
-    
     
     func showSpinner(){
         addChild(spinner)
@@ -123,7 +120,6 @@ class AddLocationViewController: UIViewController, UITextFieldDelegate {
             self.spinner.removeFromParent()
         }
     }
-
 }
 
 extension AddLocationViewController {
@@ -137,4 +133,5 @@ extension AddLocationViewController {
         tap.cancelsTouchesInView = false
         return tap
     }
+    
 }

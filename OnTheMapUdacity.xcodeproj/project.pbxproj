@@ -107,9 +107,9 @@
 		18BAB722227C3A5A007C2668 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				18ADE624227F24F200D20915 /* StudentAnnotationInfo.swift */,
 				18BAB72A227C4BFE007C2668 /* UdacityClient.swift */,
 				18BAB745227EC96D007C2668 /* UdacityData.swift */,
+				18ADE624227F24F200D20915 /* StudentAnnotationInfo.swift */,
 				18BAB72E227C6884007C2668 /* StudentInformation.swift */,
 				18BAB731227CC5F5007C2668 /* Responses */,
 				18BAB738227D6F08007C2668 /* Error */,

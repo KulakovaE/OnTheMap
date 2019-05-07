@@ -12,11 +12,4 @@ class OnTheMapTableViewCell: UITableViewCell {
 
     @IBOutlet var studentName: UILabel!
     @IBOutlet var studentLink: UILabel!
-    override func awakeFromNib() {
-        super.awakeFromNib()
-       
-    }
-
-  
-
 }

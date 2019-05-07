@@ -23,11 +23,7 @@ class TableViewController: UITableViewController {
             self.studentLocations = studentLocations
             self.tableView.reloadData()
         }
-        
-     
     }
-
-    // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
@@ -36,6 +32,7 @@ class TableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.studentLocations.count
     }
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "OnTheMapTableViewCell", for: indexPath)
         if let cell = cell as? OnTheMapTableViewCell {
@@ -44,7 +41,6 @@ class TableViewController: UITableViewController {
             cell.studentLink.text = studentLocation.mediaURL
         }
         return cell
-        
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -63,7 +59,6 @@ class TableViewController: UITableViewController {
         present(vc, animated: true)
     }
     
-    
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 50
     }
@@ -73,8 +68,8 @@ class TableViewController: UITableViewController {
         alertVC.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         present(alertVC, animated: true, completion: nil)
     }
-
 }
+
 extension TableViewController: SFSafariViewControllerDelegate {
     func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
         dismiss(animated: true)

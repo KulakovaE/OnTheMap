@@ -1,5 +1,5 @@
 //
-//  StudentInformation.swift
+//  StudentAnnotationInfo.swift
 //  OnTheMapUdacity
 //
 //  Created by Elena Kulakova on 2019-05-04.

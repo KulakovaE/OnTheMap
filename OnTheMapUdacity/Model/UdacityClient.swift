@@ -41,11 +41,11 @@ class UdacityClient {
             case .logout:
                 return Endpoints.udacityAPIBase
             case .getStudentLocations(let limit):
-                return "https://parse.udacity.com/parse/classes/StudentLocation?limit=\(limit)&&order=-updatedAt"
+                return Endpoints.parseAPIBase + "?limit=\(limit)&&order=-updatedAt"
             case .getUserData(let userId):
                 return "https://onthemap-api.udacity.com/v1/users/\(userId)"
             case .getStudentLocation(let uniqueKey):
-                return "https://parse.udacity.com/parse/classes/StudentLocation?where=%7B%22uniqueKey%22%3A%22\(uniqueKey)%22%7D"
+                return Endpoints.parseAPIBase + "?where=%7B%22uniqueKey%22%3A%22\(uniqueKey)%22%7D"
             case .postStudentLocation:
                 return Endpoints.parseAPIBase
             case .updateStudentLocation(let objectId):
@@ -58,8 +58,7 @@ class UdacityClient {
         }
     }
     
-    
-    @discardableResult class func taskForGETRequest<ResponseType:Decodable>(url:URL, response:ResponseType.Type, completion: @escaping (ResponseType?, Error?) -> Void)-> URLSessionTask{
+    @discardableResult class func taskForGETRequest<ResponseType:Decodable>(url:URL, response:ResponseType.Type, completion: @escaping (ResponseType?, Error?) -> Void)-> URLSessionTask {
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -96,7 +95,6 @@ class UdacityClient {
                     return
                 }
             }
-
         }
         task.resume()
         
@@ -104,6 +102,7 @@ class UdacityClient {
     }
     
     class func taskForPOSTRequest<RequestType: Encodable, ResponseType: Decodable>(url: URL, responseType: ResponseType.Type, body: RequestType, completion: @escaping (ResponseType?, Error?) -> Void){
+        
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.httpBody = try! JSONEncoder().encode(body)
@@ -151,6 +150,7 @@ class UdacityClient {
     }
     
     class func taskForPUTRequest<RequestType: Encodable, ResponseType: Decodable>(url: URL, responseType: ResponseType.Type, body: RequestType, completion: @escaping (ResponseType?, Error?) -> Void){
+        
         var request = URLRequest(url: url)
         request.httpMethod = "PUT"
         request.httpBody = try! JSONEncoder().encode(body)
@@ -166,7 +166,6 @@ class UdacityClient {
                 }
                 return
             }
-            
             
             print(String(data: data, encoding: .utf8)!)
             let decoder = JSONDecoder()
@@ -203,7 +202,7 @@ class UdacityClient {
             }
         }
     }
-    //MARK: DeleteRequest
+    
     class func logout(completion: @escaping (Bool, Error?)-> Void) {
         var request = URLRequest(url: Endpoints.logout.url)
         request.httpMethod = "DELETE"
@@ -257,7 +256,6 @@ class UdacityClient {
                 completion(true, nil)
                 return
             }
-            
             completion(false, error)
         }
     }
@@ -269,7 +267,6 @@ class UdacityClient {
                 completion(true, nil)
                 return
             }
-            
             completion(false, error)
         }
     }
@@ -280,7 +277,6 @@ class UdacityClient {
                 completion(true, nil)
                 return
             }
-            
             completion(false, error)
         }
     }

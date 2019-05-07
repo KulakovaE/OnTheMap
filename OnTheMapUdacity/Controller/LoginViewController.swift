@@ -11,7 +11,6 @@ import SafariServices
 
 class LoginViewController: UIViewController {
 
-    //MARK: Outlets
     @IBOutlet var emailTextField: UITextField!
     @IBOutlet var passwordTextField: UITextField!
     @IBOutlet var loginButton: UIButton!
@@ -25,6 +24,9 @@ class LoginViewController: UIViewController {
         emailTextField.text = ""
         passwordTextField.text = ""
         navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        subscribeToKeyboardNotifications()
+        setupHideKeyboardOnTap()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -98,7 +100,7 @@ class LoginViewController: UIViewController {
         }
     }
     
-    func handleStudentLocationsResponse(success: Bool, error: Error?){
+    func handleStudentLocationsResponse(success: Bool, error: Error?) {
         hideSpinner()
         if success {
             DispatchQueue.main.async {
@@ -135,10 +137,44 @@ class LoginViewController: UIViewController {
             self.spinner.removeFromParent()
         }
     }
+    
+    
+    
 }
 
 extension LoginViewController: SFSafariViewControllerDelegate {
     func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
         dismiss(animated: true)
+    }
+}
+
+extension LoginViewController { //keyboard related methods
+    
+    @objc func keyboardWillShow(_ notification: Notification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+            if emailTextField.isFirstResponder || passwordTextField.isFirstResponder {
+                self.view.frame.origin.y -= keyboardSize.height
+            }
+        }
+    }
+    
+    @objc func keyboardWillHide(_ notification: Notification) {
+        self.view.frame.origin.y = 0
+    }
+    
+    func subscribeToKeyboardNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object:  nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object:  nil)
+    }
+    
+    func setupHideKeyboardOnTap() {
+        self.view.addGestureRecognizer(self.endEditingRecognizer())
+        self.navigationController?.navigationBar.addGestureRecognizer(self.endEditingRecognizer())
+    }
+    
+    private func endEditingRecognizer() -> UIGestureRecognizer {
+        let tap = UITapGestureRecognizer(target: self.view, action: #selector(self.view.endEditing(_:)))
+        tap.cancelsTouchesInView = false
+        return tap
     }
 }

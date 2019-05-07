@@ -21,6 +21,8 @@ class FinishAddLocationViewController: UIViewController, MKMapViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationItem.title = "Add Location"
+        
         guard let location = location else { return }
         let myLocationAnnotation = StudentAnnotationInfo(title: searchLocationText, subtitle: nil, coordinate: location)
         mapView.addAnnotation(myLocationAnnotation)
@@ -42,7 +44,6 @@ class FinishAddLocationViewController: UIViewController, MKMapViewDelegate {
         } else {
             annotationView?.annotation = annotation
         }
-        
         return annotationView
     }
     
