@@ -66,35 +66,59 @@ class UdacityClient {
         request.addValue(apiKey, forHTTPHeaderField: "X-Parse-REST-API-Key")
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let data = data else {
-                DispatchQueue.main.async {
-                    completion(nil, error)
+            
+            if error != nil {
+                completion( nil, error)
+                return
+            }
+            
+            guard let httpStatusCode = (response as? HTTPURLResponse)?.statusCode else {
+                completion(nil, error)
+                return
+            }
+            
+            if httpStatusCode >= 200 && httpStatusCode < 300 {
+                guard let data = data else {
+                    DispatchQueue.main.async {
+                        completion(nil, error)
+                    }
+                    return
+                }
+                
+                let decoder = JSONDecoder()
+                
+                var newData: Data
+                if url.absoluteString.contains("https://onthemap-api.udacity.com") {
+                    newData = data.subdata(in: (5..<data.count))
+                } else {
+                    newData = data
+                }
+                
+                print(String(data: newData, encoding: .utf8)!)
+                
+                if let responseObject = try? decoder.decode(ResponseType.self, from: newData) {
+                    DispatchQueue.main.async {
+                        completion(responseObject, nil)
+                        return
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        completion(nil, UdacityError.init("Something went wrong."))
+                        return
+                    }
+                }
+            } else {
+                switch httpStatusCode {
+                case 400: completion(nil, UdacityError.init("Bad Request."))
+                case 401: completion(nil, UdacityError.init("Invalid Credentials."))
+                case 403: completion(nil, UdacityError.init("Unauthorized request."))
+                case 410: completion(nil, UdacityError.init("URL Changed."))
+                case 500: completion(nil, UdacityError.init("Server error."))
+                default:  completion(nil, UdacityError.init("Something went wrong."))
                 }
                 return
             }
             
-            let decoder = JSONDecoder()
-            
-            var newData: Data
-            if url.absoluteString.contains("https://onthemap-api.udacity.com") {
-                newData = data.subdata(in: (5..<data.count))
-            } else {
-                newData = data
-            }
-            
-            print(String(data: newData, encoding: .utf8)!)
-            
-            if let responseObject = try? decoder.decode(ResponseType.self, from: newData) {
-                DispatchQueue.main.async {
-                    completion(responseObject, nil)
-                    return
-                }
-            } else {
-                DispatchQueue.main.async {
-                    completion(nil, UdacityError.init("Something went wrong."))
-                    return
-                }
-            }
         }
         task.resume()
         
@@ -112,39 +136,62 @@ class UdacityClient {
         request.addValue(apiKey, forHTTPHeaderField: "X-Parse-REST-API-Key")
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let data = data else {
-                DispatchQueue.main.async {
-                    completion(nil, error)
+            if error != nil {
+                completion( nil, error)
+                return
+            }
+            
+            guard let httpStatusCode = (response as? HTTPURLResponse)?.statusCode else {
+                completion(nil, error)
+                return
+            }
+            
+            if httpStatusCode >= 200 && httpStatusCode < 300 {
+                guard let data = data else {
+                    DispatchQueue.main.async {
+                        completion(nil, error)
+                    }
+                    return
+                }
+                
+                var newData: Data
+                if request.url == Endpoints.postStudentLocation.url {
+                    newData = data
+                } else {
+                    newData = data.subdata(in: (5..<data.count))
+                }
+                
+                print(String(data: newData, encoding: .utf8)!)
+                let decoder = JSONDecoder()
+                
+                if let responseObject = try? decoder.decode(ResponseType.self, from: newData) {
+                    DispatchQueue.main.async {
+                        completion(responseObject, nil)
+                        return
+                    }
+                } else if let responseObject = try? decoder.decode(ErrorResponse.self, from: newData) {
+                    DispatchQueue.main.async {
+                        completion(nil, UdacityError.init(responseObject.error))
+                        return
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        completion(nil, UdacityError.init("Something went wrong."))
+                        return
+                    }
+                }
+            } else {
+                switch httpStatusCode {
+                case 400: completion(nil, UdacityError.init("Bad Request."))
+                case 401: completion(nil, UdacityError.init("Invalid Credentials."))
+                case 403: completion(nil, UdacityError.init("Unauthorized request."))
+                case 410: completion(nil, UdacityError.init("URL Changed."))
+                case 500: completion(nil, UdacityError.init("Server error."))
+                default:  completion(nil, UdacityError.init("Something went wrong."))
                 }
                 return
             }
             
-            var newData: Data
-            if request.url == Endpoints.postStudentLocation.url {
-                newData = data
-            } else {
-                newData = data.subdata(in: (5..<data.count))
-            }
-            
-            print(String(data: newData, encoding: .utf8)!)
-            let decoder = JSONDecoder()
-            
-            if let responseObject = try? decoder.decode(ResponseType.self, from: newData) {
-                DispatchQueue.main.async {
-                    completion(responseObject, nil)
-                    return
-                }
-            } else if let responseObject = try? decoder.decode(ErrorResponse.self, from: newData) {
-                DispatchQueue.main.async {
-                    completion(nil, UdacityError.init(responseObject.error))
-                    return
-                }
-            } else {
-                DispatchQueue.main.async {
-                    completion(nil, UdacityError.init("Something went wrong."))
-                    return
-                }
-            }
         }
         task.resume()
     }
@@ -160,31 +207,53 @@ class UdacityClient {
         request.addValue(apiKey, forHTTPHeaderField: "X-Parse-REST-API-Key")
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let data = data else {
-                DispatchQueue.main.async {
-                    completion(nil, error)
-                }
+            if error != nil {
+                completion( nil, error)
                 return
             }
             
-            print(String(data: data, encoding: .utf8)!)
-            let decoder = JSONDecoder()
+            guard let httpStatusCode = (response as? HTTPURLResponse)?.statusCode else {
+                completion(nil, error)
+                return
+            }
             
-            if let responseObject = try? decoder.decode(ResponseType.self, from: data) {
-                DispatchQueue.main.async {
-                    completion(responseObject, nil)
+            if httpStatusCode >= 200 && httpStatusCode < 300 {
+                guard let data = data else {
+                    DispatchQueue.main.async {
+                        completion(nil, error)
+                    }
                     return
                 }
-            } else if let responseObject = try? decoder.decode(ErrorResponse.self, from: data) {
-                DispatchQueue.main.async {
-                    completion(nil, UdacityError.init(responseObject.error))
-                    return
+                
+                print(String(data: data, encoding: .utf8)!)
+                let decoder = JSONDecoder()
+                
+                if let responseObject = try? decoder.decode(ResponseType.self, from: data) {
+                    DispatchQueue.main.async {
+                        completion(responseObject, nil)
+                        return
+                    }
+                } else if let responseObject = try? decoder.decode(ErrorResponse.self, from: data) {
+                    DispatchQueue.main.async {
+                        completion(nil, UdacityError.init(responseObject.error))
+                        return
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        completion(nil, UdacityError.init("Something went wrong."))
+                        return
+                    }
                 }
             } else {
-                DispatchQueue.main.async {
-                    completion(nil, UdacityError.init("Something went wrong."))
-                    return
+                switch httpStatusCode {
+                case 400: completion(nil, UdacityError.init("Bad Request."))
+                case 401: completion(nil, UdacityError.init("Invalid Credentials."))
+                case 403: completion(nil, UdacityError.init("Unauthorized request."))
+                case 410: completion(nil, UdacityError.init("URL Changed."))
+                case 500: completion(nil, UdacityError.init("Server error."))
+                default:  completion(nil, UdacityError.init("Something went wrong."))
                 }
+                return
             }
         }
         task.resume()
